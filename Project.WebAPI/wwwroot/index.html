@@ -1,0 +1,511 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+            .header h1 {
+                font-size: 28px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+        .username-section {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+            .username-section input {
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                font-size: 15px;
+                transition: all 0.3s;
+                outline: none;
+            }
+
+                .username-section input:focus {
+                    border-color: #667eea;
+                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                }
+
+        #messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+            #messages::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #messages::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            #messages::-webkit-scrollbar-thumb {
+                background: #667eea;
+                border-radius: 4px;
+            }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .message-user {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            word-wrap: break-word;
+            display: inline-block;
+            max-width: 90%;
+        }
+
+        .file-attachment {
+            background: #f0f0f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+            .file-attachment::before {
+                content: "📎";
+            }
+
+        #typing {
+            padding: 10px 20px;
+            font-size: 13px;
+            color: #888;
+            font-style: italic;
+            min-height: 20px;
+        }
+
+        .message-form {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+            .message-form input[type="text"] {
+                flex: 1;
+                padding: 12px 16px;
+                border: 2px solid #e0e0e0;
+                border-radius: 25px;
+                font-size: 15px;
+                transition: all 0.3s;
+                outline: none;
+            }
+
+                .message-form input[type="text"]:focus {
+                    border-color: #667eea;
+                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                }
+
+            .message-form button {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 25px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                outline: none;
+            }
+
+        .btn-upload {
+            background: #f0f0f0;
+            color: #555;
+        }
+
+            .btn-upload:hover {
+                background: #e0e0e0;
+                transform: translateY(-2px);
+            }
+
+        .btn-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+            .btn-send:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-send:active, .btn-upload:active {
+                transform: translateY(0);
+            }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                border-radius: 0;
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            #messages {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 Chat Board</h1>
+        </div>
+
+        <div class="username-section">
+            <input type="text" id="username" placeholder="Enter your name..." maxlength="30">
+        </div>
+
+        <div id="messages">
+            <div class="empty-state">No messages yet. Start the conversation! 👋</div>
+        </div>
+
+        <div id="typing"></div>
+
+        <form class="message-form" id="messageForm">
+            <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" maxlength="500">
+            <input type="file" id="fileInput" style="display:none" accept="image/*,.pdf,.doc,.docx,.txt">
+            <button type="button" class="btn-upload" onclick="document.getElementById('fileInput').click()">📄 File</button>
+            <button type="submit" class="btn-send">Send</button>
+        </form>
+        <div id="filePreview" style="padding: 10px"></div>
+    </div>
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+        <script>
+            const fileInput = document.getElementById("fileInput");
+            const filePreview = document.getElementById("filePreview");
+
+            // Show preview when user selects file
+            fileInput.addEventListener("change", function () {
+                filePreview.innerHTML = ""; // clear old preview
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const fileName = file.name;
+                const fileType = file.type;
+
+                if (fileType.startsWith("image/")) {
+                   
+                    const container = document.createElement("div");
+                    container.style.display = "flex";
+                    container.style.flexDirection = "column";
+                    container.style.alignItems = "center";
+                    container.style.marginBottom = "10px";
+                    container.style.position = "relative";
+
+                    const img = document.createElement("img");
+                    img.src = URL.createObjectURL(file);
+                    img.style.maxWidth = "80px";
+                    img.style.maxHeight = "80px";
+                    img.style.borderRadius = "100px";
+                    img.style.border = "1px solid #ddd";
+                    img.style.marginBottom = "6px";
+
+                    const span = document.createElement("span");
+                    span.textContent = fileName;
+                    span.style.fontSize = "13px";
+                    span.style.color = "#555";
+                    span.style.textAlign = "center";
+
+                 
+                    const removeBtn = document.createElement("button");
+                    removeBtn.textContent = "❌";
+                    removeBtn.style.position = "absolute";
+                    removeBtn.style.top = "0";
+                    removeBtn.style.right = "0";
+                    removeBtn.style.background = "transparent";
+                    removeBtn.style.border = "none";
+                    removeBtn.style.cursor = "pointer";
+                    removeBtn.style.fontSize = "16px";
+                    removeBtn.style.color = "#f44336";
+
+                    removeBtn.onclick = () => {
+                        container.remove();                // Remove preview
+                        document.getElementById("fileInput").value = ""; // Clear file input
+                    };
+
+                    container.appendChild(removeBtn);
+                    container.appendChild(img);
+                    container.appendChild(span);
+                    filePreview.appendChild(container);
+                }
+                else {
+                    // Non-image files (PDF, DOCX, etc.)
+                    const container = document.createElement("div");
+                    container.style.display = "flex";
+                    container.style.alignItems = "center";
+                    container.style.justifyContent = "space-between";
+                    container.style.marginBottom = "10px";
+                    container.style.border = "1px solid #ddd";
+                    container.style.padding = "5px 10px";
+                    container.style.borderRadius = "5px";
+                    container.style.background = "#f9f9f9";
+
+                    const fileText = document.createElement("span");
+                    fileText.innerHTML = `📄 <b>${fileName}</b>`;
+
+                    const removeBtn = document.createElement("button");
+                    removeBtn.textContent = "❌";
+                    removeBtn.style.background = "transparent";
+                    removeBtn.style.border = "none";
+                    removeBtn.style.cursor = "pointer";
+                    removeBtn.style.fontSize = "16px";
+                    removeBtn.style.color = "#f44336";
+
+                    removeBtn.onclick = () => {
+                        container.remove();
+                        document.getElementById("fileInput").value = "";
+                    };
+
+                    container.appendChild(fileText);
+                    container.appendChild(removeBtn);
+                    filePreview.appendChild(container);
+                }
+
+
+
+            });
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .build();
+
+            let typingTimeout;
+            let currentUsername = "";
+
+            document.getElementById("username").addEventListener("change", () => {
+                currentUsername = document.getElementById("username").value.trim();
+            });
+
+
+            // Receive message from server
+
+            connection.on("ReceiveMessage", (message) => {
+                const messagesDiv = document.getElementById("messages");
+                const messageDiv = document.createElement("div");
+
+                // check if message is mine or others
+                const isMine = message.username === currentUsername;
+
+                messageDiv.className = "message";
+                messageDiv.style.display = "flex";
+                messageDiv.style.flexDirection = "column";
+                messageDiv.style.alignItems = isMine ? "flex-end" : "flex-start";
+                messageDiv.style.margin = "10px 0";
+
+                const bubble = document.createElement("div");
+                bubble.style.maxWidth = "70%";
+                bubble.style.padding = "8px 12px";
+                bubble.style.borderRadius = "10px";
+                bubble.style.background = isMine ? "#f1f1f1" : "#f1f1f1";
+                bubble.style.textAlign = isMine ? "right" : "left";
+                bubble.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+
+                const time = new Date(message.timestamp || new Date()).toLocaleString([], {
+                        day: "2-digit",
+                        month: "short",   // e.g. "Oct"
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true
+                    });
+
+                // build content
+                let contentHtml = "";
+                if (message.content && message.content.trim() !== "") {
+                    contentHtml += `<div>${message.content}</div>`;
+                }
+
+                if (message.fileUrl) {
+                    const fileName = message.fileName || message.fileUrl.split('/').pop();
+                    const ext = fileName.split('.').pop().toLowerCase();
+
+                    if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
+                        contentHtml += `<div><img src="${message.fileUrl}" alt="${fileName}"
+                style="max-width:150px; border-radius:6px; margin-top:5px;" /></div>`;
+                    } else {
+                        contentHtml += `<div><a href="${message.fileUrl}" target="_blank">📄 ${fileName}</a></div>`;
+                    }
+                }
+
+                bubble.innerHTML = `
+                  <span class="username" style="font-weight:bold; color:${isMine ? "#2196F3" : "#2196F3"}">
+                      ${message.username}
+                  </span>
+                  ${contentHtml}
+                  <div class="time" style="font-size:10px; color:#777; margin-top:4px;">${time}</div>
+                `;
+
+                messageDiv.appendChild(bubble);
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+
+
+            // Typing indicator
+            connection.on("UserTyping", (username) => {
+                document.getElementById("typing").textContent = `${username} is typing...`;
+                setTimeout(() => document.getElementById("typing").textContent = "", 2000);
+            });
+
+            // Start SignalR connection
+            connection.start().then(() => {
+                console.log("Connected to SignalR!");
+                loadMessages();
+            }).catch(err => console.error("SignalR error:", err));
+
+            // Load old messages from API
+            async function loadMessages() {
+                const response = await fetch("/api/chat/messages?count=50");
+                const messages = await response.json();
+
+                const messagesDiv = document.getElementById("messages");
+                messagesDiv.innerHTML = "";
+
+                messages.forEach(msg => {
+                    connection.invoke("ReceiveMessage", msg).catch(() => {
+                        // Just render manually if hub method not available
+                        const event = new CustomEvent("ReceiveMessage", { detail: msg });
+                    });
+                });
+            }
+
+            // Send message
+            document.getElementById("messageForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById("username").value || "Anonymous";
+                const message = document.getElementById("messageInput").value;
+                const file = document.getElementById("fileInput").files[0];
+
+                if (!message && !file) return;
+
+                try {
+                    if (file) {
+                        const formData = new FormData();
+                        formData.append("username", username);
+                        formData.append("content", message || ""); // even if empty, send empty string
+                        formData.append("file", file);
+
+                        const res = await fetch("/api/chat/messages", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        if (!res.ok) throw new Error(await res.text());
+                    } else {
+                        await connection.invoke("SendMessage", username, message);
+                    }
+
+                    document.getElementById("messageInput").value = "";
+                    document.getElementById("fileInput").value = "";
+                    filePreview.innerHTML = ""; // Clear preview after sending
+                } catch (err) {
+                    console.error("Error sending message:", err);
+                }
+            });
+
+            // Typing indicator
+            document.getElementById("messageInput").addEventListener("input", () => {
+                const username = document.getElementById("username").value || "Anonymous";
+                clearTimeout(typingTimeout);
+                connection.invoke("SendTyping", username);
+                typingTimeout = setTimeout(() => { }, 2000);
+            });
+        </script>
+
+</body>
+</html>
